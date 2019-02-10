@@ -7,7 +7,7 @@
   "author": "dev.jeffchoi@gmail.com",
   "license": "MIT",
   "scripts": {
-    "dev": "./node_modules/.bin/nodemon -e ts --exec ts-node ./src/server.ts",
+    "dev": "./node_modules/.bin/nodemon -e ts --exec ./node_modules/.bin/ts-node ./src/server.ts",
     "prod": "yarn build && yarn start",
     "build": "tsc",
     "start": "node ./dist/index.js"
