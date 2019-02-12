@@ -8,7 +8,7 @@ const {
   DATABASE_NAME,
 } = process.env;
 
-const connectDatabase = async () => {
+const database = async () => {
   try {
     const options: ConnectionOptions = {
       type: 'mysql',
@@ -32,4 +32,4 @@ const connectDatabase = async () => {
   }
 };
 
-export default connectDatabase;
+export default database;

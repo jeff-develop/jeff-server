@@ -1,28 +1,52 @@
 import Koa from 'koa';
 import { ApolloServer, gql } from 'apollo-server-koa';
+import database from './database';
 
-// Construct a schema, using GraphQL schema language
-const typeDefs = gql`
-  type Query {
-    hello: String
+class Server {
+  private app: Koa;
+  private apolloServer: ApolloServer | null = null;
+
+  constructor() {
+    this.app = new Koa();
+
+    this.setApolloServer();
   }
-`;
 
-// Provide resolver functions for your schema fields
-const resolvers = {
-  Query: {
-    hello: () => 'Hello world!',
-  },
-};
+  private setApolloServer(): void {
+    const typeDefs = gql`
+      type Query {
+        hello: String
+        good: String
+      }
+    `;
 
-const server = new ApolloServer({ typeDefs, resolvers });
+    const resolvers = {
+      Query: {
+        good: () => 'Hello world!'
+      },
+    };
 
-const app = new Koa();
-server.applyMiddleware({ app });
+    this.apolloServer = new ApolloServer({ typeDefs, resolvers });
+    this.apolloServer.applyMiddleware({ app: this.app });
+  }
 
-const port = 3000;
-const host = 'localhost';
+  private async connectDatabase(): Promise<void> {
+    try {
+      console.log('Try connect database');
+      await database();
+      console.info('Success connection database');
+    } catch (error) {
+      console.error('Fail connection database');
+      console.error(`Error Message: ${error.message}`);
+      throw new Error(error);
+    }
+  }
 
-app.listen(port, host, () =>
-  console.log(`🚀 Server ready at http://${host}:${port}${server.graphqlPath}`),
-);
+  public async start(port: string = "4000"): Promise<void> {
+    await this.connectDatabase();
+    this.app.listen(port);
+    console.log(`Jeff-Server application is up and running on port ${port}`);
+  }
+}
+
+export default Server;
