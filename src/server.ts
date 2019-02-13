@@ -2,6 +2,8 @@ import Koa from 'koa';
 import { ApolloServer, gql } from 'apollo-server-koa';
 import database from './database';
 
+import * as authCtrl from './controller/auth.ctrl';
+
 class Server {
   private app: Koa;
   private apolloServer: ApolloServer | null = null;
@@ -17,13 +19,38 @@ class Server {
       type Query {
         hello: String
         good: String
+      },
+      type User {
+        email: String
+        name: String
+      },
+      type Token {
+        accessToken: String
+        refreshToken: String
+      },
+      type Login {
+        user: User
+        token: Token
+        error: Boolean
+        code: String
+      },
+      type Mutation {
+        requestEmailLogin(email: String!, password: String!): Login
       }
     `;
+
+    interface Login {
+      email: string;
+      password: string;
+    };
 
     const resolvers = {
       Query: {
         good: () => 'Hello world!'
       },
+      Mutation: {
+        requestEmailLogin: async (_: any, { email, password }: Login) => authCtrl.requestEmailLogin({ email, password })
+      }
     };
 
     this.apolloServer = new ApolloServer({ typeDefs, resolvers });
