@@ -5,7 +5,7 @@ import ScheduleLog from "./ScheduleLog";
 @Entity({ name: 'user' })
 class User {
   @PrimaryGeneratedColumn('uuid')
-  id!: number;
+  id!: string;
 
   @Column({ name: 'email', length: 255 })
   email!: string;

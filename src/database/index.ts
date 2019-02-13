@@ -22,7 +22,7 @@ const database = async () => {
       ],
       timezone: 'Asia/Seoul',
       extra: { max: 2, min: 1 },
-      synchronize: true,
+      synchronize: false,
       logging: false,
     };
 
