@@ -101,18 +101,51 @@ interface EmailRegisterParams {
 const requestEmailRegister = async (params: EmailRegisterParams): Promise<Email> => {
   try {
     // validation 검증
-    // 이메일이 이미 존재하는지 확인
-    // 비밀번호가 양식에 맞는지
+    const isValidParams = authValidation.emailRegisterValidation(params);
+
+    if (isValidParams.error) {
+      return {
+        error: true,
+        code: 'INVALID_REQUEST_PARAMS',
+        token: null,
+        user: null
+      }
+    }
+
+    const { email, password, name } = params;
+
+    // 이메일 존재 확인
+    const existUserEmail = await userRepo().existUserEmail(email);
+
+    if (existUserEmail) {
+      return {
+        error: true,
+        code: 'EXIST_USER_EMAIL',
+        token: null,
+        user: null
+      };
+    }
+
+    // password 암호화
+    const cipherPassword = cipher.encryptPassword(password);
+
+    // 계정 생성
+    const user = await userRepo().save({ email, password: cipherPassword, name });
+
+    // 토큰 발급 ( accessToken, refreshToken )
+    const accessToken = await token.generateAccessToken({ user: { id: user.id, name: user.name } });
+    const refreshToken = await token.generateRefreshToken({ user: { id: user.id, name: user.name } });
+
     return {
       error: false,
       code: 'SUCCESS_EMAIL_REGISTER',
       token: {
-        accessToken: 'accessToken',
-        refreshToken: 'refreshToken',
+        accessToken,
+        refreshToken,
       },
       user: {
-        email: 'test@gmail.com',
-        name: 'younghoon',
+        email,
+        name,
       }
     }
   } catch (error) {

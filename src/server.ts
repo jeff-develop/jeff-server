@@ -28,14 +28,15 @@ class Server {
         accessToken: String
         refreshToken: String
       },
-      type Login {
+      type Auth {
         user: User
         token: Token
         error: Boolean
         code: String
       },
       type Mutation {
-        requestEmailLogin(email: String!, password: String!): Login
+        requestEmailLogin(email: String!, password: String!): Auth
+        requestEmailRegister(email: String!, password: String!, name: String!): Auth
       }
     `;
 
@@ -44,12 +45,19 @@ class Server {
       password: string;
     };
 
+    interface Register {
+      email: string;
+      password: string;
+      name: string;
+    };
+
     const resolvers = {
       Query: {
         good: () => 'Hello world!'
       },
       Mutation: {
-        requestEmailLogin: async (_: any, { email, password }: Login) => authCtrl.requestEmailLogin({ email, password })
+        requestEmailLogin: async (_: any, params: Login) => authCtrl.requestEmailLogin(params),
+        requestEmailRegister: async(_: any, params: Register) => authCtrl.requestEmailRegister(params)
       }
     };
 
